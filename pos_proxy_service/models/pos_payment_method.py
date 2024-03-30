@@ -1,9 +1,10 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
-class PosPaymentMethod(models.Model): 
+class PosPaymentMethod(models.Model):
 
 	_inherit = "pos.payment.method"
+
 	payment_afip = fields.Selection([
 		('1','CARTA_DE_CREDITO_DOCUMENTARIO'),
 		('2','CARTAS_DE_CREDITO_SIMPLE'),
