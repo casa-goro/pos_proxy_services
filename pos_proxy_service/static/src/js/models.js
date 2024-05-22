@@ -104,6 +104,10 @@ const PosL10nArPosGlobalState = (PosGlobalState) => class PosL10nArPosGlobalStat
         let partner = this.get_order().get_partner();
         let type = 83;
         if(partner){
+            let partner_responsibility_type_code = this.get_responsibility_type_code(partner.l10n_ar_afip_responsibility_type_id)
+            if (partner.l10n_latam_identification_type_id[1] == 'Sigd'){
+                return 83;
+            }
             let company_responsibility_type_code = this.get_responsibility_type_code(this.company.l10n_ar_afip_responsibility_type_id)
             if (company_responsibility_type_code == '6'){
                 return 111;
@@ -111,8 +115,9 @@ const PosL10nArPosGlobalState = (PosGlobalState) => class PosL10nArPosGlobalStat
             if (partner.l10n_ar_afip_responsibility_type_id){
                 let partner_responsibility_type_code = this.get_responsibility_type_code(partner.l10n_ar_afip_responsibility_type_id)
 
-                if(partner_responsibility_type_code == '1') type = 81; //Factura A
+                if(partner_responsibility_type_code == '1') type = 81; //Factura A0
                 else if(partner_responsibility_type_code == '6') type = 111;//Factura C
+
                 else if(partner_responsibility_type_code == '5' || partner_responsibility_type_code == '4') type = 82;//Factura B
             }
         }
@@ -126,18 +131,18 @@ const PosL10nArPosGlobalState = (PosGlobalState) => class PosL10nArPosGlobalStat
             if (partner.l10n_ar_afip_responsibility_type_id){
                 let partner_responsibility_type_code = this.get_responsibility_type_code(partner.l10n_ar_afip_responsibility_type_id)
 
-                if(partner_responsibility_type_code == '1') id_responsabilidad_iva = 'I'; 
+                if(partner_responsibility_type_code == '1') id_responsabilidad_iva = 'I';
                 else if(partner_responsibility_type_code == '6') id_responsabilidad_iva = 'M';
                 else if(partner_responsibility_type_code == '5') id_responsabilidad_iva = 'F';
                 else if(partner_responsibility_type_code == '4') id_responsabilidad_iva = 'E';
             }
             /*id_tipo_documento = {
-                'D' : 'DNI' , 
-                'L' : 'CUIL' , 
-                'T' : 'CUIT' , 
+                'D' : 'DNI' ,
+                'L' : 'CUIL' ,
+                'T' : 'CUIT' ,
                 'C' : 'Cédula de Identidad' ,
-                'P' : 'Pasaporte' , 
-                'V' : 'Libreta Cívica' , 
+                'P' : 'Pasaporte' ,
+                'V' : 'Libreta Cívica' ,
                 'E' : 'Libreta de Enrolamiento '
             } */
             let id_tipo_documento = 'T';
@@ -191,18 +196,18 @@ const PosL10nArPosGlobalState = (PosGlobalState) => class PosL10nArPosGlobalStat
              let uom = line.get_unit()
              if (uom) unit_measure = uom.l10n_ar_afip_code;
              if(line.product.barcode) code_intern = line.product.barcode;
-             else if(line.product.default_code) code_intern = line.product.default_code; 
+             else if(line.product.default_code) code_intern = line.product.default_code;
              if(code_intern == '') code_intern = '11111';
 
              let price = line.get_unit_price() * (1.0 - (line.get_discount() / 100.0));
              if (this.config.version_printer == 'hasar250'){
                  price = line.get_all_prices().priceWithTax;
              }
-             else if(this.config.version_printer == 'epsont900fa' && type == 83){
+             else if(this.config.version_printer == 'epsont900fa' && (type == 83 || type == 82)){
                  console.info('is epson and is ticket');
                  price = line.get_all_prices().priceWithTax / line.quantity;
              }
-             else if(this.config.version_printer == 'epsont900fa' && type != 83){
+             else if(this.config.version_printer == 'epsont900fa' && (type != 83 || type != 82)){
                  console.info('is epson and is not ticket');
                  price = line.get_all_prices().priceWithoutTax / line.quantity;
 
