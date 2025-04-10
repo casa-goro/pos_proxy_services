@@ -12,6 +12,26 @@ const PosL10nArPosGlobalState = (PosGlobalState) => class PosL10nArPosGlobalStat
     async _processData(loadedData) {
         await super._processData(...arguments);
     }
+    async setContingencyMode(){
+        let confirmText = this.env.pos.pos_session.invoice_contingency ? this.env._t('End contingecy'):  this.env._t('Set contingecy');
+        let reason = this.env._t('If you enter the contingency mode, invoices will never be created.');
+
+        const { confirmed } =  await Gui.showPopup('ConfirmPopup', {
+            title: this.env._t('Change contingency mode'),
+            body: reason,
+            confirmText: confirmText,
+            cancelText: this.env._t('Close'),
+        });
+        if (confirmed){
+            const contingency_state = await this.env.services.rpc({
+                model: 'pos.session',
+                method: 'pos_toogle_contingency_mode',
+                args: [odoo.pos_session_id],
+            });
+            this.env.pos.pos_session.invoice_contingency = contingency_state;
+        }
+
+    }
     useFiscalPrinter(){
         return this.config.use_fiscal_printer;
     }
@@ -58,6 +78,10 @@ const PosL10nArPosGlobalState = (PosGlobalState) => class PosL10nArPosGlobalStat
 
     }
     async print_pos_ticket(){
+        if (this.env.pos.pos_session.invoice_contingency){
+            console.log('MODO CONTINGENCIA: No imprimo ticket');
+            return ;
+        }
         var self = this;
         var url = this.config.proxy_fiscal_printer + '/print_pos_ticket';
         console.info('print_pos_ticket url: ', url);
