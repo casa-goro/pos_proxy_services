@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields
+from odoo import models, fields, api
 
 
 class PosSession(models.Model):
@@ -8,16 +8,9 @@ class PosSession(models.Model):
 
     invoice_contingency = fields.Boolean(tracking=True,)
 
-    def _loader_params_pos_payment_method(self):
-        params = super()._loader_params_pos_payment_method()
-        if self.company_id.country_code == 'AR':
-            params['search_params']['fields'] += ['payment_afip']
-        return params
-
-    def _loader_params_pos_session(self):
-        params = super()._loader_params_pos_session()
-        params['search_params']['fields'].append('invoice_contingency')
-        return params
+    @api.model
+    def _load_pos_data_fields(self, config_id):
+        return super()._load_pos_data_fields(config_id) + ["invoice_contingency"]
 
     def pos_toogle_contingency_mode(self):
         self.ensure_one()

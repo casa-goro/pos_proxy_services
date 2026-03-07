@@ -1,56 +1,56 @@
-odoo.define('pos_proxy_service.CfTicketButtons', function(require) {
-'use strict';
+// /** @odoo-module */
 
-   const PosComponent = require('point_of_sale.PosComponent');
-   const ProductScreen = require('point_of_sale.ProductScreen');
-   const { useListener } = require("@web/core/utils/hooks");
-   const Registries = require('point_of_sale.Registries');
+// import { Component } from "@odoo/owl";
+// import { ProductScreen } from "@point_of_sale/app/screens/product_screen/product_screen";
+// import { usePos } from "@point_of_sale/app/hooks/pos_hook";
+// import { SelectionPopup } from "@point_of_sale/app/utils/selection_popup/selection_popup";
+// import { _t } from "@web/core/l10n/translation";
 
-   class CfTicketButtons extends PosComponent {
-        setup() {
-            super.setup();
-            useListener('click', this.onClick);
-        }
-       async onClick() {
-            console.log('sssss')
-            var listaCierres = [];
-            listaCierres.push({
-                'id': "1",
-                'label': "Cierre X",
-                'item':  "x",
-            });
-            listaCierres.push({
-                'id': "2",
-                'label': "Cierre Z",
-                'item':  "z",
-            });
+// export class CfTicketButtons extends Component {
+//     static template = "pos_proxy_service.CfTicketButtons";
 
-            const { confirmed, payload: seleccioncierre } = await this.showPopup(
-                'SelectionPopup',
-                {
-                    title: this.env._t('Selecione el cierre fiscal'),
-                    list: listaCierres,
-                }
-            );
-            if (confirmed) {
-                if (seleccioncierre == 'z'){
-                    var con = confirm("¿Esta seguro de imprimir cierre Z?");
-                    if (!con){
-                        return;
-                    }
-                }
-                this.env.pos.print_pos_fiscal_close(seleccioncierre);
-            }
-       }
-   }
-    CfTicketButtons.template = 'CfTicketButtons';
+//     setup() {
+//         this.pos = usePos();
+//     }
 
-    ProductScreen.addControlButton({
-    component: CfTicketButtons,
-    condition: function() {
-        return this.env.pos.config.use_fiscal_printer;
-    },
-    });
-    Registries.Component.add(CfTicketButtons);
-    return CfTicketButtons;
-});
+//     async onClick() {
+//         console.log('Cierre Fiscal Button clicked');
+//         const listaCierres = [
+//             {
+//                 id: "1",
+//                 label: _t("Cierre X"),
+//                 item: "x",
+//             },
+//             {
+//                 id: "2",
+//                 label: _t("Cierre Z"),
+//                 item: "z",
+//             }
+//         ];
+
+//         const { confirmed, payload: seleccioncierre } = await this.pos.dialog.add(
+//             SelectionPopup,
+//             {
+//                 title: _t('Selecione el cierre fiscal'),
+//                 list: listaCierres,
+//             }
+//         );
+        
+//         if (confirmed) {
+//             if (seleccioncierre === 'z'){
+//                 const con = confirm(_t("¿Esta seguro de imprimir cierre Z?"));
+//                 if (!con){
+//                     return;
+//                 }
+//             }
+//             this.pos.print_pos_fiscal_close(seleccioncierre);
+//         }
+//     }
+// }
+
+// ProductScreen.addControlButton({
+//     component: CfTicketButtons,
+//     condition: function() {
+//         return this.pos.config.use_fiscal_printer;
+//     },
+// });

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #    Copyright (C) 2007  pronexo.com  (https://www.pronexo.com)
 #    All Rights Reserved.
 #
@@ -15,38 +14,32 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-############################################################################## # 
+############################################################################## #
 #
 {
-	'name': 'Pos Proxy Services',
-	'summary': 'Proxy para usar odoo con impresores fiscales Argentinos para Epson / Hasar',
-	'description': 'Impresor Fiscal Epson, Impresor Fiscal Hasar Vieja y Nueva generacion',
-	'version': '16.0.2.0',
-	'author': "Pronexo",
-	'license': "AGPL-3",
-	'maintainer': 'Pronexo',
-	'category': 'Sales/Point of Sale',
-        'website': 'https://www.pronexo.com',
-	'depends': [
-		'l10n_ar_pos'
-	],
-	'data': [
-		'views/pos_payment_method_view.xml',
-		'views/pos_config_view.xml',
-		'views/pos_session_view.xml',
-	],
-    'assets': {
-        'point_of_sale.assets': [
-            'pos_proxy_service/static/src/**/*'
-        ],
+    "name": "Pos Proxy Services",
+    "summary": "Proxy para usar odoo con impresores fiscales Argentinos para Epson / Hasar",
+    "description": "Impresor Fiscal Epson, Impresor Fiscal Hasar Vieja y Nueva generacion",
+    "version": "19.0.1.0",
+    "author": "Pronexo",
+    "license": "AGPL-3",
+    "maintainer": "Pronexo",
+    "category": "Sales/Point of Sale",
+    "website": "https://www.pronexo.com",
+    "depends": ["l10n_ar_pos"],
+    "data": [
+        "views/pos_payment_method_view.xml",
+        "views/pos_config_view.xml",
+        "views/pos_session_view.xml",
+    ],
+    "assets": {
+        "point_of_sale._assets_pos": ["pos_proxy_service/static/src/**/*"],
     },
-	'external_dependencies': {
-
-    },
-	'auto_install': False,
-	'installable': True,
-	'price': 190,
-        'currency': 'USD',
-        'images': ['images/pos-proxy-service-home.png'],
-        'live_test_url': 'https://www.youtube.com/watch?v=SKFlc8bKZAI'
+    "external_dependencies": {},
+    "auto_install": False,
+    "installable": True,
+    "price": 190,
+    "currency": "USD",
+    "images": ["images/pos-proxy-service-home.png"],
+    "live_test_url": "https://www.youtube.com/watch?v=SKFlc8bKZAI",
 }

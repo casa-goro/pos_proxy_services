@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_proxy_service.Navbar" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension">
+        <xpath expr="//Dropdown/t/div[3]" position="before">
+        <div class="border-top p-2">
+            <span t-on-click="setContingencyMode" t-attf-class="btn  btn-sm rounded" title="Contingency mode">
+                <i class="fa fa-link" aria-hidden="true" /> Contingency mode
+            </span>
+        </div>        
+        </xpath>
+    </t>
+</templates>

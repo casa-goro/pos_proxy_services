@@ -1,23 +1,20 @@
-odoo.define('pos_proxy_service.PaymentScreen', function (require) {
-    "use strict";
-        const PaymentScreen = require('point_of_sale.PaymentScreen');
-        const Registries = require('point_of_sale.Registries');
+/** @odoo-module */
 
-        const PosProxyServicePaymentScreen = PaymentScreen =>
-            class extends PaymentScreen {
-                /**
-                 * @override
-                 */
+import { PaymentScreen } from "@point_of_sale/app/screens/payment_screen/payment_screen";
+import { patch } from "@web/core/utils/patch";
 
-                async _finalizeValidation() {
-                    if (this.env.pos.useFiscalPrinter()){
-                        await this.env.pos.print_pos_ticket();
-                    }
-                    await super._finalizeValidation();
-                }
-        };
+patch(PaymentScreen.prototype, {
+    /**
+     * @override
+     */
 
-    Registries.Component.extend(PaymentScreen, PosProxyServicePaymentScreen);
+    async validateOrder(isForceValidate = false) {
 
-    return PaymentScreen;
+        await super.validateOrder(...arguments);
+        if (this.pos.useFiscalPrinter()){
+            await this.pos.print_pos_ticket(this.pos);
+        }
+
+    }
+
 });
