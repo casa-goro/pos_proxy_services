@@ -48,3 +48,17 @@ class TestPrinterController(http.Controller):
             '{"status": "ok", "response": true}',
             headers=[('Content-Type', 'application/json')]
         )
+
+    @http.route('/test_printer/print_pos_fiscal_close', type='http', auth='user', methods=['GET'], csrf=False)
+    def print_pos_fiscal_close(self, **kwargs):
+        """
+        Test route to simulate a print_pos_fiscal_close call.
+        Logs the call and returns an OK JSON response.
+        """
+        _logger.info("=== test_printer/print_pos_fiscal_close called ===")
+
+        return request.make_response(
+            '{"status": "ok", "response": true}',
+            headers=[('Content-Type', 'application/json')]
+        )
+

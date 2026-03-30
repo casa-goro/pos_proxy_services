@@ -1,9 +1,8 @@
 /** @odoo-module */
 
 import { PosStore } from "@point_of_sale/app/services/pos_store";
-import { patch } from "@web/core/utils/patch";
-import { _t } from "@web/core/l10n/translation";
 import { ErrorDialog } from "@web/core/errors/error_dialogs";
+import { patch } from "@web/core/utils/patch";
 
 patch(PosStore.prototype, {
 
@@ -55,8 +54,8 @@ patch(PosStore.prototype, {
     },
 
     async print_pos_ticket(pos_session){
-        
-        if (pos_session.invoice_contingency){
+        var order = this.getOrder();
+        if (pos_session.invoice_contingency || order.isToInvoice()){
             console.log('MODO CONTINGENCIA: No imprimo ticket');
             return;
         }

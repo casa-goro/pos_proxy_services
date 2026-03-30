@@ -9,12 +9,10 @@ patch(PaymentScreen.prototype, {
      */
 
     async validateOrder(isForceValidate = false) {
-
         await super.validateOrder(...arguments);
         if (this.pos.useFiscalPrinter()){
             await this.pos.print_pos_ticket(this.pos);
         }
-
     }
 
 });
