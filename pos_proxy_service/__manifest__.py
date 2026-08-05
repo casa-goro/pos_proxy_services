@@ -31,9 +31,16 @@
         "views/pos_payment_method_view.xml",
         "views/pos_config_view.xml",
         "views/pos_session_view.xml",
+        "views/pos_order_view.xml",
     ],
     "assets": {
-        "point_of_sale._assets_pos": ["pos_proxy_service/static/src/**/*"],
+        "point_of_sale._assets_pos": [
+            "pos_proxy_service/static/src/js/**/*",
+            "pos_proxy_service/static/src/xml/**/*",
+        ],
+        "web.assets_backend": [
+            "pos_proxy_service/static/src/backend/**/*",
+        ],
     },
     "external_dependencies": {},
     "auto_install": False,
