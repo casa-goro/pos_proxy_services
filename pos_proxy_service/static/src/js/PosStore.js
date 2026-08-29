@@ -105,10 +105,10 @@ patch(PosStore.prototype, {
         let partner = this.getOrder().partner_id;
         let type = 83;
         if(partner){
-            if (partner.l10n_latam_identification_type_id.name == 'Sigd'){
+            if (partner.l10n_latam_identification_type_id?.name == 'Sigd'){
                 return 83;
             }
-            if (this.company.partner_id.l10n_ar_afip_responsibility_type_id.code == '6'){
+            if (this.company.l10n_ar_afip_responsibility_type_id?.code == '6'){
                 return 111;
             }
             if (partner.l10n_ar_afip_responsibility_type_id){
