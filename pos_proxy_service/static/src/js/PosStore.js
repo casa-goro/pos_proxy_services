@@ -96,11 +96,6 @@ patch(PosStore.prototype, {
         return jsonTemplate;
     },
 
-    get_responsibility_type_code(afip_responsibility_type_id){
-        let res = this.models["l10n_ar.afip.responsibility.type"].filter((responsibility_type) => responsibility_type.id == afip_responsibility_type_id[0]);
-        return res ? res[0].code : false;
-    },
-
     get_afip_document_code(){
         let partner = this.getOrder().partner_id;
         let type = 83;
