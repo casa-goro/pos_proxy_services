@@ -9,7 +9,7 @@ patch(PosStore.prototype, {
     // async setup() {
     //     await super.setup(...arguments);
     //     this.pos = usePos();
-    // }, 
+    // },
 
     useFiscalPrinter(){
         return this.config.use_fiscal_printer;
@@ -23,7 +23,7 @@ patch(PosStore.prototype, {
 
     async state_printer(){
         const url = this.config.proxy_fiscal_printer + '/state_printer';
-        
+
         try {
             const response = await fetch(url, {
                 method: "GET",
@@ -39,7 +39,7 @@ patch(PosStore.prototype, {
     async print_pos_fiscal_close(type){
         const url = this.config.proxy_fiscal_printer + '/print_pos_fiscal_close';
         console.info('print_pos_fiscal_close url: ', url);
-        
+
         try {
             const response = await fetch(url + '?type=' + type, {
                 method: "GET",
@@ -53,16 +53,26 @@ patch(PosStore.prototype, {
         }
     },
 
-    async print_pos_ticket(pos_session){
+    async print_pos_ticket(){
         var order = this.getOrder();
-        if (pos_session.invoice_contingency || order.isToInvoice()){
+        // El modo contingencia se guarda en la sesion (lo togglea Navbar.js).
+        if (this.session.invoice_contingency || order.isToInvoice()){
             console.log('MODO CONTINGENCIA: No imprimo ticket');
             return;
         }
         const url = this.config.proxy_fiscal_printer + '/print_pos_ticket';
         console.info('print_pos_ticket url: ', url);
-        const data = JSON.stringify(this.get_values_ticket());
-        
+        const vals = this.get_values_ticket();
+        // Un precio que no es numero se serializa como null y la impresora
+        // corta el comprobante a mitad de camino: mejor no mandarlo.
+        const invalid = vals.items.find((item) => !Number.isFinite(item.price));
+        if (invalid){
+            this.message_error_printer_fiscal(
+                'No se pudo calcular el precio de "' + invalid.description + '". No se manda a imprimir.');
+            return;
+        }
+        const data = JSON.stringify(vals);
+
         try {
             const response = await fetch(url + '?vals=' + encodeURIComponent(data), {
                 method: "GET",
@@ -78,7 +88,9 @@ patch(PosStore.prototype, {
     get_values_ticket(){
         var order = this.getOrder();
         var type = this.get_afip_document_code();
-        var name = order.name;
+        // Offline la orden todavia no tiene nombre del servidor (name es "/"),
+        // asi que se usa la referencia que el POS genera en el cliente.
+        var name = (order.name && order.name != '/') ? order.name : order.pos_reference;
         var cliente = this.get_values_client();
         var items = this.get_values_items();
         var pagos = this.get_values_paymentlines();
@@ -177,22 +189,27 @@ patch(PosStore.prototype, {
                  }
              }
              let uom = line.product_id.uom_id
-             if (uom) unit_measure = uom.l10n_ar_afip_code;
+             if (uom) unit_measure = uom.l10n_ar_afip_code || 0;
              if(line.product_id.barcode) code_intern = line.product_id.barcode;
              else if(line.product_id.default_code) code_intern = line.product_id.default_code;
              if(code_intern == '') code_intern = '11111';
 
-             let price = line.price_unit * (1.0 - (line.discount / 100.0));
+             // Los precios salen de los getters que el POS calcula en el
+             // cliente (priceIncl / priceExcl), no de price_subtotal ni de
+             // price_subtotal_incl: esos son campos stored que recien se
+             // completan al sincronizar (setOrderPrices, en preSyncAllOrders),
+             // y el ticket fiscal tiene que salir aunque no haya servidor.
+             let price = line.price_unit * (1.0 - ((line.discount || 0) / 100.0));
              if (this.config.version_printer == 'hasar250'){
-                 price = line.price_subtotal_incl;
+                 price = line.priceIncl;
              }
              else if(this.config.version_printer == 'epsont900fa' && (type == 83 || type == 82)){
                  console.info('is epson and is ticket');
-                 price = line.price_subtotal_incl / line.qty;
+                 price = line.priceIncl / line.qty;
              }
              else if(this.config.version_printer == 'epsont900fa' && (type != 83 || type != 82)){
                  console.info('is epson and is not ticket');
-                 price = line.price_subtotal / line.qty;
+                 price = line.priceExcl / line.qty;
              }
              let  product_discount_general = false;
 
@@ -254,7 +271,7 @@ patch(PosStore.prototype, {
 
         for (var i = 0; i < order_lines.length; i++){
             var line = order_lines[i];
-            var base_price = line.price_subtotal
+            var base_price = line.priceExcl;
             var price_line_bruto = Math.round((line.price_unit * line.qty) * Math.pow(10, this.currency.decimal_places)) / Math.pow(10, this.currency.decimal_places);
             var discount = price_line_bruto - base_price;
             sum_amount_discount += discount;

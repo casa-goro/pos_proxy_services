@@ -5,3 +5,4 @@ from . import pos_payment_method
 from . import l10n_ar_afip_responsibility_type
 from . import l10n_latam_identification_type
 from . import res_company
+from . import uom_uom
