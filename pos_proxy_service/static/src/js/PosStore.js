@@ -21,6 +21,30 @@ patch(PosStore.prototype, {
         await super.afterProcessServerData(...arguments);
     },
 
+    /**
+     * URL del proxy fiscal para `path`. Si la caja tiene clave, va firmada:
+     * firma = HMAC-SHA256(clave, path + "?" + consulta), con la consulta tal como
+     * viaja e incluyendo ts (segundos Unix). Es lo que verifica Seguridad.cs del
+     * proxy y lo mismo que arma pos.config._fiscal_proxy_url para el backend.
+     */
+    async fiscalProxyUrl(path, params = {}){
+        let query = Object.entries(params)
+            .map(([k, v]) => k + "=" + encodeURIComponent(v))
+            .join("&");
+        const key = this.config.fiscal_proxy_key;
+        if (key){
+            query += (query ? "&" : "") + "ts=" + Math.floor(Date.now() / 1000);
+            const enc = new TextEncoder();
+            const cryptoKey = await crypto.subtle.importKey(
+                "raw", enc.encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+            const sig = await crypto.subtle.sign("HMAC", cryptoKey, enc.encode(path + "?" + query));
+            const hex = Array.from(new Uint8Array(sig), (b) => b.toString(16).padStart(2, "0")).join("");
+            query += "&firma=" + hex;
+        }
+        const base = (this.config.proxy_fiscal_printer || "").replace(/\/+$/, "");
+        return base + path + (query ? "?" + query : "");
+    },
+
     async state_printer(){
         const url = this.config.proxy_fiscal_printer + '/state_printer';
 
@@ -37,11 +61,11 @@ patch(PosStore.prototype, {
     },
 
     async print_pos_fiscal_close(type){
-        const url = this.config.proxy_fiscal_printer + '/print_pos_fiscal_close';
-        console.info('print_pos_fiscal_close url: ', url);
+        console.info('print_pos_fiscal_close type: ', type);
 
         try {
-            const response = await fetch(url + '?type=' + type, {
+            const url = await this.fiscalProxyUrl('/print_pos_fiscal_close', { type });
+            const response = await fetch(url, {
                 method: "GET",
                 signal: AbortSignal.timeout(100000)
             });
@@ -60,8 +84,6 @@ patch(PosStore.prototype, {
             console.log('MODO CONTINGENCIA: No imprimo ticket');
             return;
         }
-        const url = this.config.proxy_fiscal_printer + '/print_pos_ticket';
-        console.info('print_pos_ticket url: ', url);
         const vals = this.get_values_ticket();
         // Un precio que no es numero se serializa como null y la impresora
         // corta el comprobante a mitad de camino: mejor no mandarlo.
@@ -74,7 +96,8 @@ patch(PosStore.prototype, {
         const data = JSON.stringify(vals);
 
         try {
-            const response = await fetch(url + '?vals=' + encodeURIComponent(data), {
+            const url = await this.fiscalProxyUrl('/print_pos_ticket', { vals: data });
+            const response = await fetch(url, {
                 method: "GET",
                 signal: AbortSignal.timeout(100000)
             });

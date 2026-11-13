@@ -1,3 +1,5 @@
+import json
+
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
@@ -26,6 +28,10 @@ class PosOrder(models.Model):
                 "order_id": self.id,
                 "proxy_url": config.proxy_fiscal_printer,
                 "ticket": self._get_fiscal_ticket_values(),
+                # La firma se hace acá para que la clave no baje al navegador del backend.
+                "url": config._fiscal_proxy_url("/print_pos_ticket", {
+                    "vals": json.dumps(self._get_fiscal_ticket_values(), ensure_ascii=False, separators=(",", ":")),
+                }),
             },
         }
 

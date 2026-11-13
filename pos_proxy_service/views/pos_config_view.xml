@@ -28,6 +28,14 @@
                                 <label for="version_printer"/>
                                 <field name="version_printer" required='1' />
                             </div>
+                            <div class="o_setting_right_pane">
+                                <label for="fiscal_proxy_key"/>
+                                <div class="text-muted">
+                                La misma clave va en clave_firma de genesis-proxy.ini de esta caja. Vacía = sin firma.
+                                </div>
+                                <field name="fiscal_proxy_key" password="True"/>
+                                <button name="action_generate_fiscal_proxy_key" type="object" string="Generar clave" class="btn-link"/>
+                            </div>
                         </div>
                     </div>
 

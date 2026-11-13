@@ -20,7 +20,7 @@
     "name": "Pos Proxy Services",
     "summary": "Proxy para usar odoo con impresores fiscales Argentinos para Epson / Hasar",
     "description": "Impresor Fiscal Epson, Impresor Fiscal Hasar Vieja y Nueva generacion",
-    "version": "19.0.1.0",
+    "version": "19.0.1.1",
     "author": "Pronexo",
     "license": "AGPL-3",
     "maintainer": "Pronexo",

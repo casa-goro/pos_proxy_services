@@ -13,7 +13,10 @@ import { _t } from "@web/core/l10n/translation";
  */
 async function reprintFiscalTicket(env, action) {
     const { order_id, proxy_url, ticket } = action.params;
-    const url = proxy_url + "/print_pos_ticket?vals=" + encodeURIComponent(JSON.stringify(ticket));
+    // `url` viene armada (y firmada si la caja tiene clave) desde pos.config._fiscal_proxy_url.
+    const url =
+        action.params.url ||
+        proxy_url + "/print_pos_ticket?vals=" + encodeURIComponent(JSON.stringify(ticket));
 
     try {
         const response = await fetch(url, {
